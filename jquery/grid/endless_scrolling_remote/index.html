@@ -1,0 +1,77 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <base href="https://demos.telerik.com/kendo-ui/grid/endless-scrolling-remote">
+    <style>html { font-size: 14px; font-family: Arial, Helvetica, sans-serif; }</style>
+    <title></title>
+    <link rel="stylesheet" href="https://kendo.cdn.telerik.com/2018.3.1017/styles/kendo.common-material.min.css" />
+    <link rel="stylesheet" href="https://kendo.cdn.telerik.com/2018.3.1017/styles/kendo.material.min.css" />
+    <link rel="stylesheet" href="https://kendo.cdn.telerik.com/2018.3.1017/styles/kendo.material.mobile.min.css" />
+    <script src="https://kendo.cdn.telerik.com/2018.3.1017/js/jquery.min.js"></script>
+    <script src="https://kendo.cdn.telerik.com/2018.3.1017/js/kendo.all.min.js"></script>
+</head>
+<body>
+    <div id="example">
+        <div id="grid"></div>
+        <script>
+            $(document).ready(function () {
+                var crudServiceBaseUrl = "https://demos.telerik.com/kendo-ui/service";
+                var dataSource = new kendo.data.DataSource({
+                    transport: {
+                        read: {
+                            url: "https://demos.telerik.com/kendo-ui/service/Northwind.svc/Products",
+                            dataType: "jsonp"
+                        },
+                        parameterMap: function (options, operation) {
+                            if (operation !== "read" && options.models) {
+                                return { models: kendo.stringify(options.models) };
+                            }
+                            return kendo.data.transports["odata"].parameterMap(options, operation);
+                        }
+                    },
+                    pageSize: 20,
+                    type: "odata",
+                    batch: true,
+                    serverPaging: true,
+                    serverSorting: true,
+                    schema: {
+                        model: {
+                            id: "ProductID",
+                            fields: {
+                                ProductID: { editable: false, nullable: true },
+                                ProductName: { validation: { required: true } },
+                                UnitPrice: { type: "number", validation: { required: true, min: 1 } },
+                                Discontinued: { type: "boolean" },
+                                UnitsInStock: { type: "number", validation: { min: 0, required: true } }
+                            }
+                        },
+                        data: function (response) {
+                            return response.d ? response.d.results: response;
+                        }
+                    }
+                });
+
+                $("#grid").kendoGrid({
+                    dataSource: dataSource,
+                    height: 550,
+                    sortable: true,
+                    scrollable: {
+                        endless: true
+                    },
+                    pageable: {
+                        numeric: false,
+                        previousNext: false
+                    },
+                    editable: "inline",
+                    columns: [
+                        { field: "ProductName", title: "Name", width: "120px" },
+                        { field: "UnitPrice", title: "Price", format: "{0:c}", width: "120px" },
+                        { field: "UnitsInStock", title: "Count", width: "120px" }
+                    ]
+                });
+            });
+        </script>
+    </div>
+</body>
+</html>
